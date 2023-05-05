@@ -278,6 +278,19 @@ contract Microlending {
         );
         emit LoanRepaid(loanId, amount);
     }
+
+    /**
+        * @dev Only admin can withdraw cUSD funds of the platform
+        * @notice Allows the admin to withdraw the funds of the platform
+    */
+    function withdraw() public payable{
+        require(msg.sender == admin, "Unauthorized caller");
+        uint cUSDBalance = IERC20Token(cUsdTokenAddress).balanceOf(address(this));
+        require(
+            IERC20Token(cUsdTokenAddress).transfer(admin, cUSDBalance),
+            "Withdrawal failed"
+        );
+    }
 }
 
 ```
@@ -451,6 +464,26 @@ The `approveLoan()` function allows the admin of the platform to approve pending
 ```
 
 Borrowers can use this function to repay their loans. The `Loan` struct associated with the supplied `loanId` is first retrieved from the loans array. The function then validates that the sender is the borrower and that the loan has not been repaid. If these conditions are met, the function marks the loan as repaid, it then computes the total amount to be repaid (loan amount + interest), it also checks if the deadline to repay the loan has been exceeded and if **true** a late payment fee is added to `amount`. Finally, the payment is made to the platform and the `LoanRepaid` event is emitted.
+
+
+```solidity
+
+    /**
+        * @dev Only admin can withdraw cUSD funds of the platform
+        * @notice Allows the admin to withdraw the funds of the platform
+    */
+    function withdraw() public payable{
+        require(msg.sender == admin, "Unauthorized caller");
+        uint cUSDBalance = IERC20Token(cUsdTokenAddress).balanceOf(address(this));
+        require(
+            IERC20Token(cUsdTokenAddress).transfer(admin, cUSDBalance),
+            "Withdrawal failed"
+        );
+    }
+
+```
+
+This allows the admin of the platform to withdraw the cUSD tokens stored on the platform. The function essentially fetches the cUSD balance of the smart contract and then transfers it to the admin using the `transfer()` function the cUSD token.
 
 ### Step 2: Compile the Smart Contract
 
